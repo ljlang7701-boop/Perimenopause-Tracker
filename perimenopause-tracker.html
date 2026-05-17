@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Perimenopause Symptom Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --rose-50: #FDF2F5;
+    --rose-100: #FAE0E8;
+    --rose-200: #F4B8CC;
+    --rose-400: #D4537E;
+    --rose-600: #993556;
+    --rose-800: #72243E;
+    --plum-50: #F3F2FE;
+    --plum-100: #E4E2FC;
+    --plum-400: #7F77DD;
+    --plum-800: #3C3489;
+    --teal-50: #E8F8F2;
+    --teal-100: #C2EDDC;
+    --teal-400: #1D9E75;
+    --teal-800: #085041;
+    --amber-50: #FEF6E7;
+    --amber-100: #FDE5B0;
+    --amber-400: #EF9F27;
+    --amber-800: #633806;
+    --gray-50: #F5F4F0;
+    --gray-100: #E4E2DA;
+    --gray-300: #C4C2BA;
+    --gray-500: #7A7870;
+    --gray-700: #4A4845;
+    --gray-900: #1E1D1B;
+    --surface: #FFFCFA;
+    --card: #FFFFFF;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.14);
+    --text-primary: #1E1D1B;
+    --text-secondary: #6B6960;
+    --text-tertiary: #9C9A92;
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 22px;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--surface);
+    color: var(--text-primary);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* Layout */
+  .app { display: flex; flex-direction: column; min-height: 100vh; max-width: 800px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    padding: 20px 24px 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--card);
+  }
+  .header-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; }
+  .wordmark { font-family: var(--font-display); font-size: 22px; color: var(--rose-800); letter-spacing: -0.3px; }
+  .wordmark span { font-style: italic; color: var(--rose-400); }
+  .header-date { font-size: 12px; color: var(--text-tertiary); }
+
+  /* Nav tabs */
+  .nav { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    display: flex; align-items: center; gap: 6px; padding: 10px 16px;
+    background: none; border: none; border-bottom: 2px solid transparent;
+    font-family: var(--font-body); font-size: 13px; color: var(--text-secondary);
+    cursor: pointer; white-space: nowrap; transition: color 0.15s; font-weight: 400;
+  }
+  .nav-btn:hover { color: var(--text-primary); }
+  .nav-btn.active { color: var(--rose-800); border-bottom-color: var(--rose-400); font-weight: 500; }
+  .nav-btn svg { opacity: 0.7; }
+  .nav-btn.active svg { opacity: 1; }
+
+  /* Main content */
+  .content { flex: 1; padding: 24px; }
+
+  /* Cards */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 12px;
+  }
+  .card-sm { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 10px; }
+  .card-surface { background: var(--gray-50); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 10px; }
+
+  /* Typography */
+  .page-title { font-family: var(--font-display); font-size: 26px; color: var(--rose-800); margin-bottom: 4px; letter-spacing: -0.3px; }
+  .page-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+  .section-label {
+    font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-tertiary); margin-bottom: 10px;
+  }
+  .card-title { font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+  .card-body { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  /* Stat grid */
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .stat-card { background: var(--gray-50); border-radius: var(--radius-md); padding: 14px; }
+  .stat-label { font-size: 10px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+  .stat-val { font-size: 24px; font-weight: 500; color: var(--text-primary); line-height: 1; }
+  .stat-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+
+  /* Pill / badge */
+  .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .pill-rose { background: var(--rose-100); color: var(--rose-800); }
+  .pill-plum { background: var(--plum-100); color: var(--plum-800); }
+  .pill-teal { background: var(--teal-100); color: var(--teal-800); }
+  .pill-amber { background: var(--amber-100); color: var(--amber-800); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px;
+    border-radius: var(--radius-md); font-family: var(--font-body); font-size: 13px;
+    font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--card);
+    color: var(--text-primary); transition: all 0.15s;
+  }
+  .btn:hover { background: var(--gray-50); }
+  .btn-primary { background: var(--rose-800); color: #fff; border-color: var(--rose-800); }
+  .btn-primary:hover { background: var(--rose-600); border-color: var(--rose-600); }
+  .btn-rose { background: var(--rose-100); color: var(--rose-800); border-color: var(--rose-200); }
+  .btn-rose:hover { background: var(--rose-200); }
+  .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: var(--radius-sm); }
+  .btn-full { width: 100%; justify-content: center; padding: 14px; font-size: 14px; }
+
+  /* Inputs */
+  input[type="text"], input[type="date"], textarea, select {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 13px;
+    color: var(--text-primary); background: var(--card); transition: border-color 0.15s;
+    outline: none;
+  }
+  input[type="text"]:focus, input[type="date"]:focus, textarea:focus, select:focus {
+    border-color: var(--rose-400);
+  }
+  textarea { resize: vertical; line-height: 1.5; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 5px; }
+
+  /* Symptom bar */
+  .sym-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+  .sym-name { font-size: 12px; color: var(--text-secondary); width: 120px; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 6px; background: var(--gray-100); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+  .bar-num { font-size: 11px; color: var(--text-tertiary); width: 20px; text-align: right; }
+
+  /* Rating buttons */
+  .rating-row { display: flex; align-items: center; gap: 10px; margin-bottom: 11px; }
+  .rating-label { font-size: 13px; color: var(--text-secondary); width: 130px; flex-shrink: 0; }
+  .rating-btns { display: flex; gap: 4px; }
+  .r-btn {
+    width: 30px; height: 30px; border-radius: 7px; border: 1px solid var(--border);
+    background: var(--gray-50); color: var(--text-secondary); font-size: 12px;
+    cursor: pointer; font-family: var(--font-body); transition: all 0.1s;
+  }
+  .r-btn:hover { border-color: var(--border-strong); }
+  .r-btn.sel-rose { background: var(--rose-100); border-color: var(--rose-400); color: var(--rose-800); font-weight: 500; }
+  .r-btn.sel-plum { background: var(--plum-100); border-color: var(--plum-400); color: var(--plum-800); font-weight: 500; }
+  .r-btn.sel-amber { background: var(--amber-100); border-color: var(--amber-400); color: var(--amber-800); font-weight: 500; }
+  .r-btn.sel-teal { background: var(--teal-100); border-color: var(--teal-400); color: var(--teal-800); font-weight: 500; }
+
+  /* Heatmap */
+  .heatmap-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .hm-day-label { text-align: center; font-size: 10px; color: var(--text-tertiary); padding: 3px 0; }
+  .hm-cell {
+    aspect-ratio: 1; border-radius: 5px; background: var(--gray-100); border: 1px solid transparent;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 10px; position: relative; transition: transform 0.1s;
+  }
+  .hm-cell:hover { transform: scale(1.08); z-index: 2; }
+  .hm-cell.today { border-color: var(--rose-400); }
+  .hm-empty { aspect-ratio: 1; }
+  .hm-period-dot { width: 4px; height: 4px; border-radius: 2px; position: absolute; bottom: 3px; }
+
+  /* Trend bars */
+  .trend-wrap { display: flex; align-items: flex-end; gap: 2px; height: 80px; }
+  .trend-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+  .trend-bar { width: 100%; border-radius: 2px 2px 0 0; min-height: 2px; transition: height 0.3s; }
+
+  /* Symptom chips */
+  .chip-grid { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .chip {
+    padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--gray-50); color: var(--text-secondary);
+    font-family: var(--font-body); transition: all 0.15s;
+  }
+  .chip:hover { border-color: var(--border-strong); }
+  .chip.active-rose { background: var(--rose-100); border-color: var(--rose-400); color: var(--rose-800); font-weight: 500; }
+  .chip.active-plum { background: var(--plum-100); border-color: var(--plum-400); color: var(--plum-800); font-weight: 500; }
+
+  /* Category header badge */
+  .cat-badge { display: inline-block; padding: 3px 9px; border-radius: 4px; font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 12px; }
+
+  /* Doctor prep sheet */
+  .prep-sheet { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 28px 30px; }
+  .prep-sheet-title { font-family: var(--font-display); font-size: 22px; color: var(--rose-800); margin-bottom: 4px; }
+  .prep-sheet-sub { font-size: 12px; color: var(--text-tertiary); margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+  .prep-section { margin-bottom: 20px; }
+  .prep-section-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--rose-800); margin-bottom: 8px; }
+  .prep-section-content { font-size: 13px; color: var(--text-primary); line-height: 1.7; }
+  .prep-q { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+  .prep-q-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--rose-400); margin-top: 6px; flex-shrink: 0; }
+  .prep-divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+  .prep-goal-box { background: var(--rose-50); border: 1px solid var(--rose-100); border-radius: var(--radius-md); padding: 14px 16px; }
+  .prep-goal-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--rose-800); margin-bottom: 5px; }
+
+  /* Divider */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+  /* Two-col grid */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* Legend */
+  .legend { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--text-tertiary); }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+
+  /* Print */
+  @media print {
+    .header, .nav, .no-print { display: none !important; }
+    .content { padding: 0; }
+    .prep-sheet { border: none; padding: 0; }
+    body { background: white; }
+  }
+
+  /* Animations */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .page { animation: fadeIn 0.2s ease; }
+
+  /* Success toast */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--gray-700); color: #fff; padding: 10px 20px; border-radius: 20px;
+    font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999;
+  }
+  .toast.show { opacity: 1; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-top">
+      <div class="wordmark">flora <span>&amp; flow</span></div>
+      <div class="header-date" id="header-date"></div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn active" data-tab="home" onclick="switchTab('home')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </button>
+      <button class="nav-btn" data-tab="log" onclick="switchTab('log')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Daily log
+      </button>
+      <button class="nav-btn" data-tab="heatmap" onclick="switchTab('heatmap')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Monthly view
+      </button>
+      <button class="nav-btn" data-tab="trends" onclick="switchTab('trends')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Trends
+      </button>
+      <button class="nav-btn" data-tab="prep" onclick="switchTab('prep')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.77 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.37a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.02z"/></svg>
+        Doctor prep
+      </button>
+    </nav>
+  </div>
+
+  <div class="content">
+    <div id="page-home" class="page"></div>
+    <div id="page-log" class="page" style="display:none"></div>
+    <div id="page-heatmap" class="page" style="display:none"></div>
+    <div id="page-trends" class="page" style="display:none"></div>
+    <div id="page-prep" class="page" style="display:none"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+const SYMPTOMS = [
+  { id:"hotflash",    label:"Hot flashes",    cat:"vasomotor", col:"rose" },
+  { id:"nightsweat",  label:"Night sweats",   cat:"vasomotor", col:"rose" },
+  { id:"sleep",       label:"Sleep quality",  cat:"sleep",     col:"plum" },
+  { id:"fatigue",     label:"Fatigue",        cat:"sleep",     col:"plum" },
+  { id:"anxiety",     label:"Anxiety",        cat:"mood",      col:"amber"},
+  { id:"mood",        label:"Mood swings",    cat:"mood",      col:"amber"},
+  { id:"brainfog",    label:"Brain fog",      cat:"cognition", col:"teal" },
+  { id:"memory",      label:"Memory issues",  cat:"cognition", col:"teal" },
+  { id:"joints",      label:"Joint pain",     cat:"body",      col:"rose" },
+  { id:"headache",    label:"Headaches",      cat:"body",      col:"rose" },
+  { id:"palpitations",label:"Palpitations",   cat:"body",      col:"plum" },
+];
+
+const CATS = [
+  { key:"vasomotor", label:"Vasomotor",       col:"rose",  desc:"Hot flashes & sweats" },
+  { key:"sleep",     label:"Sleep",           col:"plum",  desc:"Sleep & energy" },
+  { key:"mood",      label:"Mood & anxiety",  col:"amber", desc:"Emotional symptoms" },
+  { key:"cognition", label:"Cognition",       col:"teal",  desc:"Brain & memory" },
+  { key:"body",      label:"Body",            col:"rose",  desc:"Physical symptoms" },
+];
+
+const SAMPLE_QUESTIONS = [
+  "Am I a candidate for hormone therapy (HRT)?",
+  "Should we rule out thyroid dysfunction?",
+  "What blood tests should I request today?",
+  "Is my bone density at risk? Should I get a DEXA scan?",
+  "What non-hormonal options exist for my symptoms?",
+  "Are my heart palpitations hormone-related or cardiac?",
+  "How do I know if I'm truly in perimenopause?",
+  "What can I do about vaginal dryness and sexual changes?",
+];
+
+const COL_MID = { rose:"#D4537E", plum:"#7F77DD", teal:"#1D9E75", amber:"#EF9F27" };
+const COL_BG  = { rose:"var(--rose-100)", plum:"var(--plum-100)", teal:"var(--teal-100)", amber:"var(--amber-100)" };
+const COL_TXT = { rose:"var(--rose-800)", plum:"var(--plum-800)", teal:"var(--teal-800)", amber:"var(--amber-800)" };
+
+// Seed 30 days of demo data
+function seedEntries() {
+  const e = {};
+  const now = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(now); d.setDate(d.getDate() - i);
+    const k = isoDate(d);
+    if (Math.random() > 0.2) {
+      const entry = { note:"", period: (i>=1 && i<=4)||(i>=20&&i<=22) };
+      SYMPTOMS.forEach(s => {
+        const base = ["hotflash","nightsweat","sleep","anxiety"].includes(s.id) ? 1.5 : 0;
+        entry[s.id] = Math.min(5, Math.max(0, Math.round(Math.random()*3.5 + base)));
+      });
+      e[k] = entry;
+    }
+  }
+  return e;
+}
+
+const STATE = {
+  entries: seedEntries(),
+  profile: {
+    name:"", doctorName:"", apptDate:"", triedList:"", visitGoal:"",
+    questions:[], currentTab:"home"
+  },
+  trendsSelected: "hotflash",
+};
+
+function isoDate(d) {
+  return d.toISOString().split("T")[0];
+}
+const TODAY = isoDate(new Date());
+
+function getEntry(dateStr) { return STATE.entries[dateStr] || null; }
+
+function setEntry(dateStr, key, val) {
+  if (!STATE.entries[dateStr]) STATE.entries[dateStr] = { note:"", period:false };
+  STATE.entries[dateStr][key] = val;
+}
+
+function dayScore(e) {
+  if (!e) return 0;
+  const vals = SYMPTOMS.map(s => e[s.id] || 0);
+  return Math.round(vals.reduce((a,b)=>a+b,0) / vals.length);
+}
+
+function severityBg(score) {
+  if (!score) return "var(--gray-100)";
+  if (score <= 1) return "#FAD4E2";
+  if (score <= 2) return "#F0A3C0";
+  if (score <= 3) return "#D4537E";
+  if (score <= 4) return "#B03366";
+  return "#72243E";
+}
+
+function severityFg(score) { return score >= 3 ? "#fff" : "var(--text-secondary)"; }
+
+function last30Entries() {
+  const out = [];
+  const now = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(now); d.setDate(d.getDate()-i);
+    const k = isoDate(d);
+    out.push({ key:k, entry: STATE.entries[k]||null, dayNum: d.getDate() });
+  }
+  return out;
+}
+
+// ── Tab routing ────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  STATE.profile.currentTab = tab;
+  document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+  document.querySelectorAll(".nav-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.tab === tab);
+  });
+  const pg = document.getElementById("page-"+tab);
+  pg.style.display = "";
+  renderPage(tab, pg);
+}
+
+function renderPage(tab, el) {
+  el.innerHTML = "";
+  if (tab === "home")    renderHome(el);
+  if (tab === "log")     renderLog(el);
+  if (tab === "heatmap") renderHeatmap(el);
+  if (tab === "trends")  renderTrends(el);
+  if (tab === "prep")    renderPrep(el);
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2000);
+}
+
+// ── Home ───────────────────────────────────────────────────────────────────
+function renderHome(el) {
+  const l30 = last30Entries();
+  const tracked = l30.filter(d=>d.entry).length;
+  const types = new Set(l30.flatMap(d=> d.entry ? SYMPTOMS.filter(s=>(d.entry[s.id]||0)>0).map(s=>s.id) : [])).size;
+
+  const topSym = SYMPTOMS.map(s=>({
+    ...s,
+    avg: l30.length ? Math.round(l30.reduce((a,d)=>a+(d.entry?.[s.id]||0),0)/l30.length*10)/10 : 0
+  })).sort((a,b)=>b.avg-a.avg).slice(0,5);
+
+  const profile = STATE.profile;
+  const daysUntil = profile.apptDate
+    ? Math.max(0, Math.ceil((new Date(profile.apptDate)-new Date())/86400000)) : null;
+
+  const prepFields = [profile.name, profile.doctorName, profile.apptDate, profile.triedList, profile.visitGoal, (profile.questions||[]).length>0];
+  const prepPct = Math.round(prepFields.filter(Boolean).length/prepFields.length*100);
+  const prepColor = prepPct>75?"var(--teal-400)":prepPct>40?"var(--amber-400)":"var(--rose-400)";
+
+  const greeting = profile.name ? `Welcome back, ${profile.name.split(" ")[0]}` : "Your symptom tracker";
+
+  el.innerHTML = `
+    <div style="margin-bottom:20px">
+      <div class="page-title">${greeting}</div>
+      <div class="page-sub">${new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"})}</div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Days tracked</div><div class="stat-val">${tracked}</div><div class="stat-sub">last 30 days</div></div>
+      <div class="stat-card"><div class="stat-label">Symptom types</div><div class="stat-val">${types}</div><div class="stat-sub">logged so far</div></div>
+      <div class="stat-card"><div class="stat-label">Prep sheet</div><div class="stat-val">${prepPct}%</div><div class="stat-sub">complete</div></div>
+    </div>
+
+    <div class="two-col" style="margin-bottom:14px">
+      <div class="card" style="margin-bottom:0">
+        <div class="section-label">Top symptoms this month</div>
+        ${topSym.map(s=>`
+          <div class="sym-row">
+            <div class="sym-name">${s.label}</div>
+            <div class="bar-track"><div class="bar-fill" style="width:${(s.avg/5)*100}%;background:${COL_MID[s.col]}"></div></div>
+            <div class="bar-num">${s.avg}</div>
+          </div>`).join("")}
+      </div>
+
+      <div class="card" style="margin-bottom:0">
+        <div class="section-label">Next appointment</div>
+        ${daysUntil !== null ? `
+          <div style="font-family:var(--font-display);font-size:32px;color:var(--rose-800);line-height:1;margin-bottom:4px">${daysUntil}</div>
+          <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:2px">days away</div>
+          <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">${profile.doctorName||"Your doctor"}</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+            <div style="width:8px;height:8px;border-radius:4px;background:${prepColor};flex-shrink:0"></div>
+            <span style="font-size:12px;color:var(--text-secondary)">Prep sheet ${prepPct}% complete</span>
+          </div>
+          <button class="btn btn-rose btn-sm" onclick="switchTab('prep')">Finish prep →</button>
+        ` : `
+          <div style="font-size:13px;color:var(--text-tertiary);margin-bottom:12px">No appointment set yet</div>
+          <button class="btn btn-rose btn-sm" onclick="switchTab('prep')">Set up prep sheet →</button>
+        `}
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="switchTab('log')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Log today's symptoms
+    </button>
+  `;
+}
+
+// ── Daily Log ──────────────────────────────────────────────────────────────
+function renderLog(el) {
+  const entry = STATE.entries[TODAY] || {};
+
+  el.innerHTML = `
+    <div class="page-title">Today's log</div>
+    <div class="page-sub">${new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"})}&ensp;·&ensp;Rate 0 (none) → 5 (severe)</div>
+    <div id="log-cats"></div>
+    <div class="card">
+      <div class="section-label">Optional note</div>
+      <textarea id="log-note" rows="3" placeholder="Anything worth remembering about today — triggers, context, how you're feeling overall...">${entry.note||""}</textarea>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+        <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text-secondary);cursor:pointer">
+          <input type="checkbox" id="log-period" ${entry.period?"checked":""}
+            onchange="setEntry('${TODAY}','period',this.checked)" style="width:auto;padding:0;border:none"/>
+          Period / spotting today
+        </label>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="saveLog()">Save today's log</button>
+  `;
+
+  const catsEl = el.querySelector("#log-cats");
+  CATS.forEach(cat => {
+    const syms = SYMPTOMS.filter(s=>s.cat===cat.key);
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <div class="cat-badge" style="background:${COL_BG[cat.col]};color:${COL_TXT[cat.col]}">${cat.label}</div>
+      ${syms.map(s=>`
+        <div class="rating-row">
+          <div class="rating-label">${s.label}</div>
+          <div class="rating-btns" id="rb-${s.id}">
+            ${[0,1,2,3,4,5].map(n=>`
+              <button class="r-btn ${(entry[s.id]||0)===n?"sel-"+s.col:""}"
+                onclick="setRating('${s.id}','${s.col}',${n})">${n}</button>`).join("")}
+          </div>
+        </div>`).join("")}
+    `;
+    catsEl.appendChild(div);
+  });
+}
+
+function setRating(symId, col, val) {
+  setEntry(TODAY, symId, val);
+  const rb = document.getElementById("rb-"+symId);
+  if (!rb) return;
+  rb.querySelectorAll(".r-btn").forEach((b,i) => {
+    b.className = "r-btn" + (i===val?" sel-"+col:"");
+  });
+}
+
+function saveLog() {
+  const note = document.getElementById("log-note")?.value||"";
+  setEntry(TODAY,"note",note);
+  showToast("Saved ✓");
+}
+
+// ── Heatmap ────────────────────────────────────────────────────────────────
+function renderHeatmap(el) {
+  const now = new Date();
+  const year = now.getFullYear(), month = now.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const startDow = firstDay.getDay();
+  const todayNum = now.getDate();
+  const monthLabel = now.toLocaleDateString("en-US",{month:"long",year:"numeric"});
+
+  let cells = "";
+  for (let i=0;i<startDow;i++) cells+=`<div class="hm-empty"></div>`;
+  for (let d=1;d<=daysInMonth;d++) {
+    const k = `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const e = STATE.entries[k];
+    const score = dayScore(e);
+    const isToday = d===todayNum;
+    const fg = e ? severityFg(score) : "var(--text-tertiary)";
+    const bg = e ? severityBg(score) : "var(--gray-100)";
+    const periodDot = e?.period ? `<div class="hm-period-dot" style="background:${score>=3?"rgba(255,255,255,0.6)":"var(--rose-400)"}"></div>` : "";
+    cells += `<div class="hm-cell${isToday?" today":""}" style="background:${bg};color:${fg}" title="Day ${d}${e?` · severity ${score}`:""}">
+      ${d}${periodDot}
+    </div>`;
+  }
+
+  el.innerHTML = `
+    <div class="page-title">${monthLabel}</div>
+    <div class="page-sub">Color intensity shows overall symptom severity · dot = period / spotting</div>
+    <div class="card">
+      <div class="heatmap-grid" style="margin-bottom:8px">
+        ${["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=>`<div class="hm-day-label">${d}</div>`).join("")}
+        ${cells}
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--gray-100)"></div>No data</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#FAD4E2"></div>Mild</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#F0A3C0"></div>Moderate</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#D4537E"></div>High</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#72243E"></div>Severe</div>
+        <div class="legend-item"><div class="hm-period-dot" style="position:relative;background:var(--rose-400);display:inline-block;width:6px;height:6px;border-radius:3px"></div>&ensp;Period</div>
+      </div>
+    </div>
+  `;
+}
+
+// ── Trends ─────────────────────────────────────────────────────────────────
+function renderTrends(el) {
+  const sel = STATE.trendsSelected;
+  const sym = SYMPTOMS.find(s=>s.id===sel);
+  const l30 = last30Entries();
+  const avg = Math.round(l30.reduce((a,d)=>a+(d.entry?.[sel]||0),0)/l30.length*10)/10;
+  const peak = Math.max(...l30.map(d=>d.entry?.[sel]||0));
+  const activeDays = l30.filter(d=>(d.entry?.[sel]||0)>0).length;
+  const maxBarH = 80;
+
+  const chips = SYMPTOMS.map(s=>`
+    <button class="chip ${s.id===sel?"active-"+s.col:""}" onclick="selectTrendSym('${s.id}')">${s.label}</button>
+  `).join("");
+
+  const bars = l30.map((d,i)=>{
+    const v = d.entry?.[sel]||0;
+    const h = v ? Math.max(4, (v/5)*maxBarH) : 2;
+    const showLabel = i===0||i===14||i===29;
+    return `<div class="trend-bar-col">
+      <div class="trend-bar" style="height:${h}px;background:${v?COL_MID[sym.col]:"var(--gray-100)"}"></div>
+      ${showLabel?`<div style="font-size:9px;color:var(--text-tertiary)">${d.dayNum}</div>`:""}
+    </div>`;
+  }).join("");
+
+  el.innerHTML = `
+    <div class="page-title">Trends</div>
+    <div class="page-sub">30-day symptom history — tap a symptom to explore</div>
+    <div class="chip-grid">${chips}</div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">30-day avg</div><div class="stat-val">${avg}</div><div class="stat-sub">out of 5</div></div>
+      <div class="stat-card"><div class="stat-label">Peak severity</div><div class="stat-val">${peak}</div><div class="stat-sub">this month</div></div>
+      <div class="stat-card"><div class="stat-label">Active days</div><div class="stat-val">${activeDays}</div><div class="stat-sub">of 30</div></div>
+    </div>
+    <div class="card">
+      <div class="section-label" style="margin-bottom:14px">${sym.label} — daily severity (last 30 days)</div>
+      <div class="trend-wrap">${bars}</div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px">
+        <div style="font-size:10px;color:var(--text-tertiary)">30 days ago</div>
+        <div style="font-size:10px;color:var(--text-tertiary)">Today</div>
+      </div>
+    </div>
+  `;
+}
+
+function selectTrendSym(id) {
+  STATE.trendsSelected = id;
+  const el = document.getElementById("page-trends");
+  renderTrends(el);
+}
+
+// ── Doctor Prep ────────────────────────────────────────────────────────────
+function renderPrep(el) {
+  const p = STATE.profile;
+  const showSheet = STATE.showPrepSheet;
+
+  if (showSheet) { renderPrepSheet(el); return; }
+
+  const l30 = last30Entries();
+  const topSym = SYMPTOMS.map(s=>({
+    ...s,
+    avg: Math.round(l30.reduce((a,d)=>a+(d.entry?.[s.id]||0),0)/l30.length*10)/10,
+    days: l30.filter(d=>(d.entry?.[s.id]||0)>0).length,
+    peak: Math.max(...l30.map(d=>d.entry?.[s.id]||0))
+  })).sort((a,b)=>b.avg-a.avg).slice(0,3);
+
+  const unusedQ = SAMPLE_QUESTIONS.filter(q=>!(p.questions||[]).includes(q));
+
+  el.innerHTML = `
+    <div class="page-title">Doctor prep</div>
+    <div class="page-sub">Fill this out before your appointment. Your prep sheet auto-generates from your data.</div>
+
+    <div class="card">
+      <div class="section-label">About your visit</div>
+      <div class="two-col">
+        <div class="field"><label>Your name</label><input type="text" id="p-name" value="${p.name||""}" placeholder="Full name" onchange="updateProfile('name',this.value)"/></div>
+        <div class="field"><label>Doctor name</label><input type="text" id="p-doc" value="${p.doctorName||""}" placeholder="Dr. Smith" onchange="updateProfile('doctorName',this.value)"/></div>
+      </div>
+      <div class="field"><label>Appointment date</label><input type="date" id="p-date" value="${p.apptDate||""}" onchange="updateProfile('apptDate',this.value)" style="max-width:200px"/></div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">What you've already tried</div>
+      <textarea id="p-tried" rows="2" placeholder="e.g. Magnesium glycinate, evening primrose oil, cutting caffeine, sleep hygiene changes..." onchange="updateProfile('triedList',this.value)">${p.triedList||""}</textarea>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Your goal for this visit</div>
+      <textarea id="p-goal" rows="2" placeholder="e.g. Discuss HRT options. I want to leave with a plan — not 'come back in 6 months.'" onchange="updateProfile('visitGoal',this.value)">${p.visitGoal||""}</textarea>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Questions to ask your doctor</div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:6px">Suggested questions — click to add:</div>
+        <div class="chip-grid">
+          ${unusedQ.slice(0,4).map(q=>`<button class="chip" onclick="addQuestion(${JSON.stringify(q)})" style="text-align:left">+ ${q}</button>`).join("")}
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:10px">
+        <input type="text" id="q-input" placeholder="Type your own question..." style="flex:1" onkeydown="if(event.key==='Enter'){addQuestionFromInput()}"/>
+        <button class="btn btn-sm" onclick="addQuestionFromInput()">Add</button>
+      </div>
+      <div id="q-list">
+        ${(p.questions||[]).map((q,i)=>`
+          <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:var(--gray-50);border-radius:6px;margin-bottom:4px">
+            <div style="width:5px;height:5px;border-radius:50%;background:var(--rose-400);margin-top:6px;flex-shrink:0"></div>
+            <div style="flex:1;font-size:13px">${q}</div>
+            <button onclick="removeQuestion(${i})" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:16px;padding:0;line-height:1">&times;</button>
+          </div>`).join("")}
+      </div>
+    </div>
+
+    <div class="card" style="background:var(--rose-50);border-color:var(--rose-100)">
+      <div class="section-label" style="color:var(--rose-800)">Auto-detected from your logs</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">Your prep sheet will include this data automatically:</div>
+      ${topSym.map(s=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--rose-100)">
+          <div style="font-size:13px;color:var(--text-primary)">${s.label}</div>
+          <div style="font-size:12px;color:var(--text-secondary)">avg ${s.avg}/5 · ${s.days} days · peak ${s.peak}</div>
+        </div>`).join("")}
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="openPrepSheet()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Generate prep sheet
+    </button>
+  `;
+}
+
+function updateProfile(key, val) { STATE.profile[key] = val; }
+
+function addQuestion(q) {
+  if (!(STATE.profile.questions||[]).includes(q)) {
+    STATE.profile.questions = [...(STATE.profile.questions||[]), q];
+  }
+  renderPage("prep", document.getElementById("page-prep"));
+}
+
+function addQuestionFromInput() {
+  const inp = document.getElementById("q-input");
+  const q = inp?.value?.trim();
+  if (q) addQuestion(q);
+}
+
+function removeQuestion(idx) {
+  STATE.profile.questions = STATE.profile.questions.filter((_,i)=>i!==idx);
+  renderPage("prep", document.getElementById("page-prep"));
+}
+
+function openPrepSheet() {
+  STATE.showPrepSheet = true;
+  renderPage("prep", document.getElementById("page-prep"));
+}
+
+// ── Prep Sheet ─────────────────────────────────────────────────────────────
+function renderPrepSheet(el) {
+  const p = STATE.profile;
+  const l30 = last30Entries();
+
+  const topSym = SYMPTOMS.map(s=>({
+    ...s,
+    avg: Math.round(l30.reduce((a,d)=>a+(d.entry?.[s.id]||0),0)/l30.length*10)/10,
+    days: l30.filter(d=>(d.entry?.[s.id]||0)>0).length,
+    peak: Math.max(...l30.map(d=>d.entry?.[s.id]||0))
+  })).sort((a,b)=>b.avg-a.avg).slice(0,3);
+
+  const periodEntries = l30.filter(d=>d.entry?.period);
+  const cycleNote = periodEntries.length
+    ? `${periodEntries.length} days of bleeding or spotting recorded in the last 30 days`
+    : "No period or spotting recorded in the last 30 days";
+
+  const apptFormatted = p.apptDate
+    ? new Date(p.apptDate+"T12:00:00").toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})
+    : "Date not set";
+
+  el.innerHTML = `
+    <div class="no-print" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+      <button class="btn btn-sm" onclick="closePrepSheet()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to prep form
+      </button>
+      <button class="btn btn-rose btn-sm" onclick="window.print()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print / Save PDF
+      </button>
+    </div>
+
+    <div class="prep-sheet">
+      <div class="prep-sheet-title">Appointment prep</div>
+      <div class="prep-sheet-sub">
+        <strong>${p.name||"Patient name not set"}</strong>&ensp;·&ensp;${p.doctorName||"Doctor not set"}&ensp;·&ensp;${apptFormatted}<br/>
+        <span style="color:var(--text-tertiary)">Based on 30 days of symptom tracking</span>
+      </div>
+
+      <div class="prep-section">
+        <div class="prep-section-label">Top 3 symptoms this month</div>
+        <div class="prep-section-content">
+          ${topSym.map((s,i)=>`
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+              <div style="width:20px;height:20px;border-radius:50%;background:var(--rose-100);color:var(--rose-800);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">${i+1}</div>
+              <div>
+                <div style="font-weight:500">${s.label}</div>
+                <div style="font-size:12px;color:var(--text-secondary)">Average severity ${s.avg}/5 · present ${s.days} of 30 days · peak severity ${s.peak}/5</div>
+              </div>
+            </div>`).join("")}
+        </div>
+      </div>
+
+      <hr class="prep-divider"/>
+
+      <div class="two-col">
+        <div class="prep-section">
+          <div class="prep-section-label">Cycle & bleeding</div>
+          <div class="prep-section-content">${cycleNote}</div>
+        </div>
+        <div class="prep-section">
+          <div class="prep-section-label">What I've already tried</div>
+          <div class="prep-section-content">${p.triedList||"Not filled in"}</div>
+        </div>
+      </div>
+
+      <hr class="prep-divider"/>
+
+      <div class="prep-section">
+        <div class="prep-section-label">Questions for my doctor</div>
+        <div class="prep-section-content">
+          ${(p.questions||[]).length > 0
+            ? p.questions.map(q=>`<div class="prep-q"><div class="prep-q-dot"></div><div>${q}</div></div>`).join("")
+            : '<div style="color:var(--text-tertiary)">No questions added yet</div>'}
+        </div>
+      </div>
+
+      <hr class="prep-divider"/>
+
+      <div class="prep-goal-box">
+        <div class="prep-goal-label">My goal for this visit</div>
+        <div style="font-size:13px;color:var(--text-primary)">${p.visitGoal||"Not filled in yet"}</div>
+      </div>
+    </div>
+  `;
+}
+
+function closePrepSheet() {
+  STATE.showPrepSheet = false;
+  renderPage("prep", document.getElementById("page-prep"));
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+document.getElementById("header-date").textContent =
+  new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
+
+renderPage("home", document.getElementById("page-home"));
+</script>
+</body>
+</html>
